@@ -1,0 +1,6 @@
+FROM mysql/mysql-server:8.0.27
+
+#添加数据库
+ENV MYSQL_DATABASE tv_live
+
+COPY tv_live.sql /docker-entrypoint-initdb.d/

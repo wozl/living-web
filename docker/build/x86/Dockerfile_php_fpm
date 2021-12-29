@@ -1,0 +1,7 @@
+FROM php:7.4-fpm
+WORKDIR /home/www
+ADD ./livingServer /home/www/livingServer/
+RUN chown -R www-data:www-data /home/www/livingServer/
+RUN chmod -R 777 /home/www/livingServer
+RUN docker-php-ext-install pdo pdo_mysql
+

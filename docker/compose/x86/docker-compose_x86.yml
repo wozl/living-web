@@ -1,0 +1,60 @@
+#指定版本
+version: '3'
+
+#服务-服务名-服务名参数
+#这里服务的顺序为mysql数据库->php-fpm->nginx前端
+services: 
+    mylive_db:
+        #docker镜像实例名称
+        container_name: mylive_db
+        #镜像地址
+        image:  asdf1221/mylive_db_x86:v1.0
+        #开启自动启动
+        restart: always
+        #设置数据库参数:时区，root密码
+        environment: 
+            - TZ=Asia/Shanghai
+            - MYSQL_ROOT_PASSWORD=123456
+        #这里不配置镜像和物理主机的端口映射，将镜像加入到同一个docker网桥中可以通过镜像名称和端口各个镜像就能直接访问    
+        #ports:
+        #这里也不配置容器和物理主机的文件映射，如需要使用自定义的配置文件，可自行进行配置     
+        #volumes: 
+        #指定网络
+        networks: 
+            - default
+    #php-fpm
+    php-fpm:
+        container_name: php-fpm
+        image: asdf1221/mylive_fpm_x86:v1.0
+        restart: always
+        privileged: true
+        volumes: 
+            - "/home/mylive/www/livingServer:/home/www/livingServer/"
+        #ports:
+        #指定容器网络
+        networks: 
+            - default
+    #前端服务
+    mylive-web:
+        container_name: mylive-web
+        image: asdf1221/mylive_centos_x86:v1.0
+        restart: always
+        privileged: true
+        networks: 
+            - default
+        #将容器内的80端口映射到物理机的8998端口
+        ports: 
+            - 8998:80
+        volumes: 
+            #将容器内的php路径和物理机对应(物理机的路径可根据实际修改，这里是以物理机的/home/mylive/html进行映射)
+            - "/home/mylive/www:/home/www"
+            #将容器内的nginx电视台配置文件路径和物理机对应，这里以物理机的/home/mylive/conf.d为默认地址，可结合自己的实际路径修改
+            - "/home/mylive/conf.d:/usr/local/nginx/conf/conf.d"
+
+#配置镜像网络 mylive-network容器网络名称，模式网桥
+networks: 
+    default:
+        external: 
+            name: mylive-network
+    
+            
